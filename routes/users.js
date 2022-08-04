@@ -14,8 +14,9 @@ router.post(
 	[
 		check('first_name', 'first name is required').not().isEmpty(),
 		check('last_name', 'last name is required').not().isEmpty(),
-		check('username', 'username is required').not().isEmpty(),
 		check('email', 'Please include a valid email').isEmail(),
+		check('state', 'state is required').not().isEmpty(),
+		check('lga', 'local government is required').not().isEmpty(),
 		check(
 			'password',
 			'Please enter a password with 6 or more characters'
@@ -27,7 +28,8 @@ router.post(
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const { first_name, last_name, username, email, password } = req.body;
+		const { first_name, last_name, email, state, lga, polling_unit, password } =
+			req.body;
 		try {
 			let user = await User.findOne({ email });
 			if (user) {
@@ -36,8 +38,10 @@ router.post(
 				user = new User({
 					first_name,
 					last_name,
-					username,
 					email,
+					state,
+					lga,
+					polling_unit,
 					password,
 				});
 
@@ -70,5 +74,18 @@ router.post(
 		}
 	}
 );
+
+//@route   Get api/v1/users
+//@desc    Get users
+//@access  Public
+router.get('/', async (req, res) => {
+	try {
+		const users = await User.find({});
+		res.json(users);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
 
 module.exports = router;
